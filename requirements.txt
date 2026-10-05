@@ -1,1 +1,2 @@
-test
+openai
+python-dotenv
