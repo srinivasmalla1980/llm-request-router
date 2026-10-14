@@ -6,7 +6,7 @@ from gradio_client import Client
 from app.prompts import CLASSIFICATION_SYSTEM_PROMPT
 
 
-client = Client("srinivasmalla/my-Qwen-llm",  hf_token=os.getenv("HF_TOKEN"))
+client = Client("srinivasmalla/my-Qwen-llm",  token=os.getenv("HF_TOKEN") or None)
 
 
 def classify_request(user_request: str) -> dict:
