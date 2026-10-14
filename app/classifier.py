@@ -1,33 +1,48 @@
 import json
-import os
+import re
 
-from dotenv import load_dotenv
-from openai import OpenAI
+from gradio_client import Client
 
 from app.prompts import CLASSIFICATION_SYSTEM_PROMPT
 
 
-load_dotenv()
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = Client("srinivasmalla/my-Qwen-llm")
 
 
 def classify_request(user_request: str) -> dict:
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {
-                "role": "system",
-                "content": CLASSIFICATION_SYSTEM_PROMPT,
-            },
-            {
-                "role": "user",
-                "content": user_request,
-            },
-        ],
-        response_format={"type": "json_object"},
+    prompt = f"""
+{CLASSIFICATION_SYSTEM_PROMPT}
+
+Return ONLY a valid JSON object.
+Do not include markdown fences or explanations.
+
+User request:
+{user_request}
+"""
+
+    response = client.predict(
+        message=prompt,
+        api_name="/chat",
     )
 
-    result = json.loads(response.choices[0].message.content)
+    # Handle responses that may contain extra text
+    if isinstance(response, dict):
+        response = response.get("text", str(response))
+
+    text = str(response).strip()
+
+    # Remove markdown code fences if the model adds them
+    text = re.sub(r"^```(?:json)?\s*", "", text)
+    text = re.sub(r"\s*```$", "", text)
+
+    try:
+        result = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise ValueError(
+            f"Qwen did not return valid JSON: {text}"
+        ) from exc
+
+    if not isinstance(result, dict):
+        raise ValueError("Expected a JSON object from Qwen")
 
     return result
