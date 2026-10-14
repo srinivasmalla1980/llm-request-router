@@ -30,3 +30,9 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: |
           python tests/test_classifier.py
+
+      - name: Test LLM router
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          PYTHONPATH: ${{ github.workspace }}
+        run: python tests/test_router.py
