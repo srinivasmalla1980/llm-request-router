@@ -27,4 +27,4 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          python test_classifier.py
+          python tests/test_classifier.py
