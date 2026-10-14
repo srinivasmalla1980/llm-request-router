@@ -26,7 +26,7 @@ jobs:
 
       - name: Run classifier tests
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
           PYTHONPATH: ${{ github.workspace }}
         run: |
           python tests/test_classifier.py
