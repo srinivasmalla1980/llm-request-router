@@ -1,0 +1,43 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Testing Playground</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>LLM Testing Playground</h1>
+      <p>Run your classifier and router tests.</p>
+    </header>
+
+    <section class="panel">
+      <label for="testType">Select a test</label>
+      <select id="testType">
+        <option value="classifier">LLM Classifier</option>
+        <option value="router">LLM Router</option>
+      </select>
+
+      <label for="userInput">Test input</label>
+      <textarea id="userInput"
+        placeholder="Enter your prompt or test input here..."
+        rows="6"></textarea>
+
+      <button id="runButton">Run Test</button>
+
+      <div id="status" role="status" aria-live="polite">
+        Ready to run a test.
+      </div>
+    </section>
+
+    <footer>
+      Powered by GitHub Pages and GitHub Actions
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
