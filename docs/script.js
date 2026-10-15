@@ -5,12 +5,12 @@ const chatForm = document.getElementById("chatForm");
 const chatHistory = document.getElementById("chatHistory");
 const status = document.getElementById("status");
 
-// Replace with your actual Render API URL.
+// Replace this with your actual Render service URL.
 const API_URL = "https://YOUR-RENDER-SERVICE.onrender.com";
 
 function addMessage(role, text) {
   const message = document.createElement("div");
-  message.className = `message ${role}`;
+  message.className = "message " + role;
 
   const heading = document.createElement("strong");
   heading.textContent = role === "user" ? "You" : "AI Assistant";
@@ -22,10 +22,13 @@ function addMessage(role, text) {
   message.appendChild(content);
   chatHistory.appendChild(message);
 
-  message.scrollIntoView({ behavior: "smooth", block: "end" });
+  message.scrollIntoView({
+    behavior: "smooth",
+    block: "end"
+  });
 }
 
-chatForm.addEventListener("submit", async (event) => {
+chatForm.addEventListener("submit", async function (event) {
   event.preventDefault();
 
   const question = userInput.value.trim();
@@ -49,16 +52,16 @@ chatForm.addEventListener("submit", async (event) => {
   chatHistory.appendChild(loadingMessage);
 
   try {
-    const response = await fetch(`${API_URL}/api/chat`, {
+    const response = await fetch(API_URL + "/api/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ question })
+      body: JSON.stringify({ question: question })
     });
 
     if (!response.ok) {
-      throw new Error(`API returned HTTP ${response.status}`);
+      throw new Error("API returned HTTP " + response.status);
     }
 
     const data = await response.json();
@@ -70,10 +73,11 @@ chatForm.addEventListener("submit", async (event) => {
       data.output;
 
     if (answer === undefined || answer === null) {
-      throw new Error("The API response did not contain an answer.");
+      throw new Error("No answer found in the API response.");
     }
 
     loadingMessage.remove();
+
     addMessage(
       "assistant",
       typeof answer === "string"
@@ -82,16 +86,13 @@ chatForm.addEventListener("submit", async (event) => {
     );
 
     status.textContent = "Response received.";
-
   } catch (error) {
-    console.error("API error:", error);
+    console.error("Chat API error:", error);
 
     loadingMessage.textContent =
-      "Sorry, I couldn't get a response. Please try again.";
+      "Unable to get a response. Please check the API configuration.";
 
-    status.textContent =
-      "Request failed. Check the API URL, Render logs, and CORS settings.";
-
+    status.textContent = error.message;
   } finally {
     userInput.disabled = false;
     runButton.disabled = false;
