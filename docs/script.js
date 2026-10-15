@@ -1,4 +1,3 @@
-```javascript
 const userInput = document.getElementById("userInput");
 const runButton = document.getElementById("runButton");
 const chatForm = document.getElementById("chatForm");
@@ -99,4 +98,3 @@ chatForm.addEventListener("submit", async function (event) {
     userInput.focus();
   }
 });
-```
