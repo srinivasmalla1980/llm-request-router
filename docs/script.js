@@ -6,7 +6,7 @@ const chatHistory = document.getElementById("chatHistory");
 const status = document.getElementById("status");
 
 // Replace this with your actual Render service URL.
-const API_URL = "https://YOUR-RENDER-SERVICE.onrender.com";
+const API_URL = "https://llm-request-router-api.onrender.com/";
 
 function addMessage(role, text) {
   const message = document.createElement("div");
