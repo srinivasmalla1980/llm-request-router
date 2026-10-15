@@ -1,31 +1,52 @@
 ```javascript
-const testType = document.getElementById("testType");
 const userInput = document.getElementById("userInput");
 const runButton = document.getElementById("runButton");
+const chatForm = document.getElementById("chatForm");
+const chatHistory = document.getElementById("chatHistory");
 const status = document.getElementById("status");
 
-// Replace with your actual Render service URL
-const API_URL = "https://llm-request-router-api.onrender.com/";
+// Replace with your actual Render API URL.
+const API_URL = "https://YOUR-RENDER-SERVICE.onrender.com";
 
-runButton.addEventListener("click", async () => {
-  const selectedTest = testType.value;
-  const input = userInput.value.trim();
+function addMessage(role, text) {
+  const message = document.createElement("div");
+  message.className = `message ${role}`;
 
-  if (!input) {
-    status.textContent = "Please enter a test input.";
+  const heading = document.createElement("strong");
+  heading.textContent = role === "user" ? "You" : "AI Assistant";
+
+  const content = document.createElement("p");
+  content.textContent = text;
+
+  message.appendChild(heading);
+  message.appendChild(content);
+  chatHistory.appendChild(message);
+
+  message.scrollIntoView({ behavior: "smooth", block: "end" });
+}
+
+chatForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const question = userInput.value.trim();
+
+  if (!question) {
+    status.textContent = "Please enter a question.";
     userInput.focus();
     return;
   }
 
-  const script =
-    selectedTest === "classifier"
-      ? "tests/test_classifier.py"
-      : "tests/test_router.py";
+  addMessage("user", question);
 
+  userInput.value = "";
+  userInput.disabled = true;
   runButton.disabled = true;
-  status.textContent =
-    `Selected test: ${script}\n` +
-    "Sending request to the API...";
+  status.textContent = "Generating response...";
+
+  const loadingMessage = document.createElement("div");
+  loadingMessage.className = "message assistant";
+  loadingMessage.textContent = "Thinking...";
+  chatHistory.appendChild(loadingMessage);
 
   try {
     const response = await fetch(`${API_URL}/api/chat`, {
@@ -33,31 +54,48 @@ runButton.addEventListener("click", async () => {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        question: input
-      })
+      body: JSON.stringify({ question })
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: HTTP ${response.status}`);
+      throw new Error(`API returned HTTP ${response.status}`);
     }
 
     const data = await response.json();
 
-    status.textContent =
-      `Selected test: ${script}\n\n` +
-      "API response:\n" +
-      (data.answer ?? data.response ?? JSON.stringify(data, null, 2));
+    const answer =
+      data.answer ??
+      data.response ??
+      data.result ??
+      data.output;
+
+    if (answer === undefined || answer === null) {
+      throw new Error("The API response did not contain an answer.");
+    }
+
+    loadingMessage.remove();
+    addMessage(
+      "assistant",
+      typeof answer === "string"
+        ? answer
+        : JSON.stringify(answer, null, 2)
+    );
+
+    status.textContent = "Response received.";
 
   } catch (error) {
     console.error("API error:", error);
 
+    loadingMessage.textContent =
+      "Sorry, I couldn't get a response. Please try again.";
+
     status.textContent =
-      `Selected test: ${script}\n\n` +
-      `Request failed: ${error.message}\n` +
-      "Check the Render API URL, service status, and CORS settings.";
+      "Request failed. Check the API URL, Render logs, and CORS settings.";
+
   } finally {
+    userInput.disabled = false;
     runButton.disabled = false;
+    userInput.focus();
   }
 });
 ```
