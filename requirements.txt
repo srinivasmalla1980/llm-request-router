@@ -1,3 +1,4 @@
 gradio_client
 python-dotenv
-
+fastapi
+uvicorn[standard]
